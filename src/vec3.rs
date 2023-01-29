@@ -1,3 +1,4 @@
+use image::Rgb;
 use std::fmt;
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub, SubAssign,
@@ -49,12 +50,11 @@ impl Vec3 {
         *self / self.length()
     }
 
-    pub fn to_rgb(&self) -> (u8, u8, u8) {
-        (
-            (255.999 * self.e[0]) as u8,
-            (255.999 * self.e[1]) as u8,
-            (255.999 * self.e[2]) as u8,
-        )
+    pub fn to_rgb(&self) -> Rgb<u8> {
+        let r = (255.999 * self.e[0]) as u8;
+        let g = (255.999 * self.e[1]) as u8;
+        let b = (255.999 * self.e[2]) as u8;
+        Rgb([r, g, b])
     }
 }
 

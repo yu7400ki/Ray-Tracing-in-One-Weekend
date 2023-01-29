@@ -1,6 +1,8 @@
 mod ray;
 mod vec3;
 
+use image::RgbImage;
+
 use crate::ray::Ray;
 use crate::vec3::{Color, Point3, Vec3};
 
@@ -24,14 +26,13 @@ fn ray_color(r: Ray) -> Color {
 }
 
 fn main() {
+    let args: Vec<_> = std::env::args().collect();
+    let path = args.get(1).unwrap();
+
     let aspect_ratio = 16.0 / 9.0;
-
     let image_width = 384;
-    let image_height = (image_width as f64 / aspect_ratio) as i32;
-
-    println!("P3");
-    println!("{} {}", image_width, image_height);
-    println!("255");
+    let image_height = (image_width as f64 / aspect_ratio) as u32;
+    let mut image = RgbImage::new(image_width, image_height);
 
     let viewport_height = 2.0;
     let viewport_width = aspect_ratio * viewport_height;
@@ -44,8 +45,10 @@ fn main() {
         origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
 
     for j in (0..image_height).rev() {
-        eprint!("\rScanlines remaining: {} ", j);
+        let y = image_height - j - 1;
+        print!("\rScan lines remaining: {} ", j);
         for i in 0..image_width {
+            let x = i;
             let u = i as f64 / (image_width - 1) as f64;
             let v = j as f64 / (image_height - 1) as f64;
             let r = Ray::new(
@@ -54,10 +57,11 @@ fn main() {
             );
 
             let pixel_color = ray_color(r);
-            let (r, g, b) = pixel_color.to_rgb();
-            println!("{} {} {}", r, g, b);
+            let pixel = pixel_color.to_rgb();
+            image.put_pixel(x, y, pixel);
         }
     }
 
-    eprintln!("\nDone.");
+    image.save(path).unwrap();
+    println!("\nDone.");
 }
