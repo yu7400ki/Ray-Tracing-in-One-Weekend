@@ -7,14 +7,15 @@ mod utils;
 mod vec3;
 
 use image::RgbImage;
+use indicatif::{ProgressBar, ProgressStyle};
 
-use crate::utils::*;
+use crate::camera::Camera;
 use crate::hittable::*;
 use crate::hittable_list::HittableList;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
+use crate::utils::*;
 use crate::vec3::*;
-use crate::camera::Camera;
 
 fn ray_color<T>(r: Ray, world: &T) -> Color
 where
@@ -45,9 +46,15 @@ fn main() {
 
     let cam = Camera::new();
 
+    let bar = ProgressBar::new(image_height as u64);
+    bar.set_style(
+        ProgressStyle::with_template("[{elapsed_precise}] {bar:100.cyan/blue} {percent}% ({eta})")
+            .unwrap(),
+    );
+
     for j in (0..image_height).rev() {
+        bar.inc(1);
         let y = image_height - j - 1;
-        print!("\rScan lines remaining: {} ", j);
         for i in 0..image_width {
             let mut pixel_color = color(0.0, 0.0, 0.0);
             let x = i;
@@ -63,5 +70,6 @@ fn main() {
     }
 
     image.save(path).unwrap();
-    println!("\nDone.");
+    bar.finish();
+    println!("Done. Output saved to {}", path)
 }
