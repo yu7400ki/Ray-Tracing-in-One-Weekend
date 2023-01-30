@@ -1,3 +1,4 @@
+use crate::utils::*;
 use image::Rgb;
 use std::fmt;
 use std::ops::{
@@ -50,10 +51,19 @@ impl Vec3 {
         *self / self.length()
     }
 
-    pub fn to_rgb(&self) -> Rgb<u8> {
-        let r = (255.999 * self.e[0]) as u8;
-        let g = (255.999 * self.e[1]) as u8;
-        let b = (255.999 * self.e[2]) as u8;
+    pub fn to_rgb(&self, samples_per_pixel: u32) -> Rgb<u8> {
+        let mut r = self.e[0];
+        let mut g = self.e[1];
+        let mut b = self.e[2];
+
+        let scale = 1.0 / samples_per_pixel as f64;
+        r *= scale;
+        g *= scale;
+        b *= scale;
+
+        let r = (clamp(r, 0.0, 0.999) * 256.0) as u8;
+        let g = (clamp(g, 0.0, 0.999) * 256.0) as u8;
+        let b = (clamp(b, 0.0, 0.999) * 256.0) as u8;
         Rgb([r, g, b])
     }
 }
