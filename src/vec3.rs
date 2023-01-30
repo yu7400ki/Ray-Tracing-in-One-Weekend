@@ -180,3 +180,15 @@ impl fmt::Display for Vec3 {
 
 pub type Point3 = Vec3; // 3D point
 pub type Color = Vec3; // RGB color
+
+pub fn vec3(e0: f64, e1: f64, e2: f64) -> Vec3 {
+    Vec3::new(e0, e1, e2)
+}
+
+pub fn point3(x: f64, y: f64, z: f64) -> Point3 {
+    Vec3::new(x, y, z)
+}
+
+pub fn color(r: f64, g: f64, b: f64) -> Color {
+    Vec3::new(r, g, b)
+}
