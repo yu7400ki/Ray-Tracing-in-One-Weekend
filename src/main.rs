@@ -81,7 +81,11 @@ fn main() {
 
     let world = init_world();
 
-    let cam = Camera::new();
+    let lookfrom = point3(-2.0, 2.0, 1.0);
+    let lookat = point3(0.0, 0.0, -1.0);
+    let vup = vec3(0.0, 1.0, 0.0);
+    let vfov = 20.0;
+    let cam = Camera::new(lookfrom, lookat, vup, vfov, aspect_ratio);
 
     let bar = ProgressBar::new(image_height as u64);
     bar.set_style(
