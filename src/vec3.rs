@@ -78,6 +78,10 @@ impl Vec3 {
             random_range_double(min, max),
         )
     }
+
+    pub fn reflect(&self, n: Vec3) -> Vec3 {
+        *self - 2.0 * self.dot(n) * n
+    }
 }
 
 impl Add for Vec3 {

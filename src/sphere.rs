@@ -1,15 +1,26 @@
+use std::rc::Rc;
+
 use crate::hittable::*;
-use crate::ray::Ray;
+use crate::material::Material;
+use crate::ray::*;
 use crate::vec3::*;
 
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
+    pub mat: Rc<dyn Material>,
 }
 
 impl Sphere {
-    pub fn new(center: Point3, radius: f64) -> Sphere {
-        Sphere { center, radius }
+    pub fn new<T>(center: Point3, radius: f64, mat: T) -> Sphere
+    where
+        T: Material + 'static,
+    {
+        Sphere {
+            center,
+            radius,
+            mat: Rc::new(mat),
+        }
     }
 }
 
@@ -34,6 +45,7 @@ impl Hittable for Sphere {
                 normal: outward_normal,
                 t,
                 front_face: true,
+                mat: Rc::clone(&self.mat),
             };
             rec.set_face_normal(r, outward_normal);
             return Some(rec);
@@ -47,6 +59,7 @@ impl Hittable for Sphere {
                 normal: outward_normal,
                 t,
                 front_face: true,
+                mat: Rc::clone(&self.mat),
             };
             rec.set_face_normal(r, outward_normal);
             return Some(rec);

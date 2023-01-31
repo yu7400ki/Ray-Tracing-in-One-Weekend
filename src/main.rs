@@ -1,6 +1,7 @@
 mod camera;
 mod hittable;
 mod hittable_list;
+mod material;
 mod ray;
 mod sphere;
 mod utils;
@@ -12,8 +13,9 @@ use indicatif::{ProgressBar, ProgressStyle};
 use crate::camera::Camera;
 use crate::hittable::*;
 use crate::hittable_list::HittableList;
+use crate::material::*;
 use crate::ray::*;
-use crate::sphere::Sphere;
+use crate::sphere::*;
 use crate::utils::*;
 use crate::vec3::*;
 
@@ -25,13 +27,40 @@ where
         return color(0.0, 0.0, 0.0);
     }
     if let Some(rec) = world.hit(r, 0.001, INFINITY) {
-        let target = rec.p + rec.normal + random_in_unit_sphere();
-        return 0.5 * ray_color(ray(rec.p, target - rec.p), world, depth - 1);
+        if let Some((attenuation, scattered)) = rec.mat.scatter(r, &rec) {
+            return attenuation * ray_color(scattered, world, depth - 1);
+        }
+        return color(0.0, 0.0, 0.0);
     }
 
     let unit_direction = r.direction().normalize();
     let t = 0.5 * (unit_direction.y() + 1.0);
     (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0)
+}
+
+fn init_world() -> HittableList {
+    let mut world = HittableList::new();
+    world.add(Sphere::new(
+        point3(0.0, 0.0, -1.0),
+        0.5,
+        Lambertian::new(color(0.7, 0.3, 0.3)),
+    ));
+    world.add(Sphere::new(
+        point3(0.0, -100.5, -1.0),
+        100.0,
+        Lambertian::new(color(0.8, 0.8, 0.0)),
+    ));
+    world.add(Sphere::new(
+        point3(1.0, 0.0, -1.0),
+        0.5,
+        Metal::new(color(0.8, 0.6, 0.2), 1.0),
+    ));
+    world.add(Sphere::new(
+        point3(-1.0, 0.0, -1.0),
+        0.5,
+        Metal::new(color(0.8, 0.8, 0.8), 0.3),
+    ));
+    world
 }
 
 fn main() {
@@ -45,9 +74,7 @@ fn main() {
     let samples_per_pixel = 100;
     let max_depth = 50;
 
-    let mut world = HittableList::new();
-    world.add(Sphere::new(point3(0.0, 0.0, -1.0), 0.5));
-    world.add(Sphere::new(point3(0.0, -100.5, -1.0), 100.0));
+    let world = init_world();
 
     let cam = Camera::new();
 
