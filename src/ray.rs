@@ -23,3 +23,7 @@ impl Ray {
         self.orig + t * self.dir
     }
 }
+
+pub fn ray(origin: Point3, direction: Vec3) -> Ray {
+    Ray::new(origin, direction)
+}

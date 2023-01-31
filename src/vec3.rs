@@ -57,14 +57,26 @@ impl Vec3 {
         let mut b = self.e[2];
 
         let scale = 1.0 / samples_per_pixel as f64;
-        r *= scale;
-        g *= scale;
-        b *= scale;
+        r = (scale * r).sqrt();
+        g = (scale * g).sqrt();
+        b = (scale * b).sqrt();
 
         let r = (clamp(r, 0.0, 0.999) * 256.0) as u8;
         let g = (clamp(g, 0.0, 0.999) * 256.0) as u8;
         let b = (clamp(b, 0.0, 0.999) * 256.0) as u8;
         Rgb([r, g, b])
+    }
+
+    pub fn random() -> Vec3 {
+        Vec3::new(random_double(), random_double(), random_double())
+    }
+
+    pub fn random_range(min: f64, max: f64) -> Vec3 {
+        Vec3::new(
+            random_range_double(min, max),
+            random_range_double(min, max),
+            random_range_double(min, max),
+        )
     }
 }
 
@@ -201,4 +213,32 @@ pub fn point3(x: f64, y: f64, z: f64) -> Point3 {
 
 pub fn color(r: f64, g: f64, b: f64) -> Color {
     Vec3::new(r, g, b)
+}
+
+pub fn random_in_unit_sphere() -> Vec3 {
+    loop {
+        let p = Vec3::random_range(-1.0, 1.0);
+        if p.length_squared() >= 1.0 {
+            continue;
+        }
+        return p;
+    }
+}
+
+#[allow(dead_code)]
+pub fn random_unit_vector() -> Vec3 {
+    let a = random_range_double(0.0, 2.0 * PI);
+    let z = random_range_double(-1.0, 1.0);
+    let r = (1.0 - z * z).sqrt();
+    Vec3::new(r * a.cos(), r * a.sin(), z)
+}
+
+#[allow(dead_code)]
+pub fn random_in_hemisphere(normal: Vec3) -> Vec3 {
+    let in_unit_sphere = random_in_unit_sphere();
+    if in_unit_sphere.dot(normal) > 0.0 {
+        in_unit_sphere
+    } else {
+        -in_unit_sphere
+    }
 }
