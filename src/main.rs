@@ -43,7 +43,7 @@ fn init_world() -> HittableList {
     world.add(Sphere::new(
         point3(0.0, 0.0, -1.0),
         0.5,
-        Lambertian::new(color(0.7, 0.3, 0.3)),
+        Lambertian::new(color(0.1, 0.2, 0.5)),
     ));
     world.add(Sphere::new(
         point3(0.0, -100.5, -1.0),
@@ -53,12 +53,17 @@ fn init_world() -> HittableList {
     world.add(Sphere::new(
         point3(1.0, 0.0, -1.0),
         0.5,
-        Metal::new(color(0.8, 0.6, 0.2), 1.0),
+        Metal::new(color(0.8, 0.6, 0.0), 0.0),
     ));
     world.add(Sphere::new(
         point3(-1.0, 0.0, -1.0),
         0.5,
-        Metal::new(color(0.8, 0.8, 0.8), 0.3),
+        Dielectric::new(1.5),
+    ));
+    world.add(Sphere::new(
+        point3(-1.0, 0.0, -1.0),
+        -0.45,
+        Dielectric::new(1.5),
     ));
     world
 }
