@@ -38,33 +38,50 @@ where
     (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0)
 }
 
-fn init_world() -> HittableList {
+fn random_scene() -> HittableList {
     let mut world = HittableList::new();
+
+    let ground_material = Lambertian::new(color(0.5, 0.5, 0.5));
     world.add(Sphere::new(
-        point3(0.0, 0.0, -1.0),
-        0.5,
-        Lambertian::new(color(0.1, 0.2, 0.5)),
+        point3(0.0, -1000.0, 0.0),
+        1000.0,
+        ground_material,
     ));
-    world.add(Sphere::new(
-        point3(0.0, -100.5, -1.0),
-        100.0,
-        Lambertian::new(color(0.8, 0.8, 0.0)),
-    ));
-    world.add(Sphere::new(
-        point3(1.0, 0.0, -1.0),
-        0.5,
-        Metal::new(color(0.8, 0.6, 0.0), 0.0),
-    ));
-    world.add(Sphere::new(
-        point3(-1.0, 0.0, -1.0),
-        0.5,
-        Dielectric::new(1.5),
-    ));
-    world.add(Sphere::new(
-        point3(-1.0, 0.0, -1.0),
-        -0.45,
-        Dielectric::new(1.5),
-    ));
+
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat = random_double();
+            let center = point3(
+                a as f64 + 0.9 * random_double(),
+                0.2,
+                b as f64 + 0.9 * random_double(),
+            );
+
+            if (center - vec3(4.0, 0.2, 0.0)).length() > 0.9 {
+                if choose_mat < 0.8 {
+                    let albedo = Color::random() * Color::random();
+                    let sphere_material = Lambertian::new(albedo);
+                    world.add(Sphere::new(center, 0.2, sphere_material));
+                } else if choose_mat < 0.95 {
+                    let albedo = Color::random_range(0.5, 1.0);
+                    let fuzz = random_range_double(0.0, 0.5);
+                    let sphere_material = Metal::new(albedo, fuzz);
+                    world.add(Sphere::new(center, 0.2, sphere_material));
+                } else {
+                    let sphere_material = Dielectric::new(1.5);
+                    world.add(Sphere::new(center, 0.2, sphere_material));
+                }
+            }
+        }
+    }
+
+    let material1 = Dielectric::new(1.5);
+    world.add(Sphere::new(point3(0.0, 1.0, 0.0), 1.0, material1));
+    let material2 = Lambertian::new(color(0.4, 0.2, 0.1));
+    world.add(Sphere::new(point3(-4.0, 1.0, 0.0), 1.0, material2));
+    let material3 = Metal::new(color(0.7, 0.6, 0.5), 0.0);
+    world.add(Sphere::new(point3(4.0, 1.0, 0.0), 1.0, material3));
+
     world
 }
 
@@ -79,14 +96,14 @@ fn main() {
     let samples_per_pixel = 100;
     let max_depth = 50;
 
-    let world = init_world();
+    let world = random_scene();
 
-    let lookfrom = point3(3.0, 3.0, 2.0);
-    let lookat = point3(0.0, 0.0, -1.0);
+    let lookfrom = point3(13.0, 2.0, 3.0);
+    let lookat = point3(0.0, 0.0, 0.0);
     let vup = vec3(0.0, 1.0, 0.0);
     let vfov = 20.0;
-    let focus_dist = (lookfrom - lookat).length();
-    let aperture = 2.0;
+    let focus_dist = 10.0;
+    let aperture = 0.1;
     let cam = Camera::new(
         lookfrom,
         lookat,
